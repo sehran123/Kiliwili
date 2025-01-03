@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Google Sign-In</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .leaderboard-item {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Firebase Google Sign-In</h1>
+  
+  <!-- Authentication Buttons -->
+  <div id="auth-buttons">
+    <button id="sign-in-btn">Sign In with Google</button>
+    <button id="sign-out-btn" style="display: none;">Sign Out</button>
+  </div>
+
+  <!-- User Info -->
+  <div id="user-info" style="display: none;">
+    <h2>Welcome, <span id="user-name"></span>!</h2>
+    <p>Email: <span id="user-email"></span></p>
+    <img id="user-photo" src="" alt="User Photo" style="border-radius: 50%; width: 100px;">
+  </div>
+
+  <!-- Leaderboard -->
+  <div id="leaderboard-container" style="margin-top: 20px;">
+    <h2>Leaderboard</h2>
+    <div id="leaderboard"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
+    import { getAuth, signInWithPopup, signOut, onAuthStateChanged, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js";
+
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAodp5KnufAomZEiEuxinugwKOjxM6oAx0",
+      authDomain: "kill-the-will-a3d21.firebaseapp.com",
+      projectId: "kill-the-will-a3d21",
+      storageBucket: "kill-the-will-a3d21.appspot.com",
+      messagingSenderId: "762976456108",
+      appId: "1:762976456108:web:5e31d60c7614c39b843e09",
+      measurementId: "G-ZDVWDKBV5F"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    // DOM Elements
+    const signInBtn = document.getElementById('sign-in-btn');
+    const signOutBtn = document.getElementById('sign-out-btn');
+    const userInfo = document.getElementById('user-info');
+    const userName = document.getElementById('user-name');
+    const userEmail = document.getElementById('user-email');
+    const userPhoto = document.getElementById('user-photo');
+    const leaderboardContainer = document.getElementById('leaderboard');
+
+    // Local Data
+    const localData = JSON.parse(sessionStorage.getItem("kilWilData")) || {
+      wins: 0,
+      loses: 0,
+      total: 0,
+      points: 0,
+      allWills: []
+    };
+
+    // Sign In
+    signInBtn.addEventListener('click', async () => {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        console.log('User signed in:', user);
+        await saveUserData(user);
+        displayUserInfo(user);
+      } catch (error) {
+        console.error('Error signing in:', error.message);
+      }
+    });
+
+    // Sign Out
+    signOutBtn.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        console.log('User signed out');
+        hideUserInfo();
+      } catch (error) {
+        console.error('Error signing out:', error.message);
+      }
+    });
+
+    // Display User Info
+    function displayUserInfo(user) {
+      signInBtn.style.display = 'none';
+      signOutBtn.style.display = 'inline-block';
+      userInfo.style.display = 'block';
+      userName.textContent = user.displayName;
+      userEmail.textContent = user.email;
+      userPhoto.src = user.photoURL;
+    }
+
+    // Hide User Info
+    function hideUserInfo() {
+      signInBtn.style.display = 'inline-block';
+      signOutBtn.style.display = 'none';
+      userInfo.style.display = 'none';
+      userName.textContent = '';
+      userEmail.textContent = '';
+      userPhoto.src = '';
+    }
+
+    // Save User Data to Firestore
+    async function saveUserData(user) {
+      try {
+        await setDoc(doc(db, "users", user.uid), {
+          name: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          points: localData.points,
+          lastLogin: new Date().toISOString()
+        }, { merge: true });
+        console.log("User data saved.");
+      } catch (error) {
+        console.error("Error saving user data:", error.message);
+      }
+    }
+
+    // Fetch and Display Leaderboard
+    async function getLeaderboard() {
+      try {
+        const leaderboardRef = collection(db, "users");
+        const leaderboardQuery = query(leaderboardRef, orderBy("points", "desc"), limit(10));
+        const snapshot = await getDocs(leaderboardQuery);
+
+        let leaderboardHTML = '';
+        snapshot.forEach(doc => {
+          const userData = doc.data();
+          leaderboardHTML += `
+            <div class="leaderboard-item">
+              <span>${userData.name || 'Anonymous'}</span> - ${userData.points || 0} points
+            </div>
+          `;
+        });
+        leaderboardContainer.innerHTML = leaderboardHTML;
+      } catch (error) {
+        console.error("Error fetching leaderboard:", error.message);
+      }
+    }
+
+    // Monitor Auth State
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        displayUserInfo(user);
+        getLeaderboard();
+      } else {
+        hideUserInfo();
+      }
+    });
+  </script>
+</body>
+</html>

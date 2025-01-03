@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>HTML</title>
+  
+  <!-- HTML -->
+  
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body><center>
+  <h1><span style="color: #FF0000;">Kill</span> The <span style="color: #00FF00;">Will</span></h1>
+  <!-- Project -->
+  
+ <div class="status-bar-container">
+        <div class="status-bar">
+            <div class="loses" id="losum"></div>
+            <div class="wins" id="winum"></div>            
+        </div>
+        <div class="status-info">
+            <span class="bor" style="background-color: #980F0F;">Loses: <span id="losespercentage">0</span>
+            </span>
+            <span class="bor" style="background-color: #2193FF;">Points: <span id="poins">0</span>
+            </span>
+            <span class="bor" style="background-color: #008326;">Wins: <span id="winspercentage">0</span></span>
+        </div>
+    </div>
+
+  <br>
+  <img class="ranki" id="rankImg" src"">
+  <br>
+  <div class="status-bar-container">
+  <div class="status-bar ran">
+            <div class="wins rani" id="rankPo"></div>
+        </div>
+        <div class="status-info">
+  <span class="bor"><span id="minR">0</span>
+  </span>
+  <span class="bor"><span id="preRank">0</span>
+  </span>
+  <span class="bor"><span id="maxR">0</span></span>
+</div>
+        </div>
+  <br>
+  <textarea id="myWill" cols="30" rows="6" placeholder="What Are You Willing!"></textarea>
+  
+  
+  <button class="but losBut" onmouseup="upd('l')">Lost</button>&nbsp;&nbsp;&nbsp;
+  <button class="but winBut" onmouseup="upd('w')">Won</button>
+  
+  <br>
+  <br>
+  
+ <!-- <button id="hisBut" onmouseup="showHide('lis')">Show History</button>-->
+  <br><br>
+
+   <div id="lis" class="dropdown-list">
+      <!--    <div class="item" onclick="toggleDropdown(this)">
+            <div class="info">
+                <span class="date-time">2024-12-30 12:45 PM</span>
+                <span class="result">Won</span>
+            </div>
+            <div class="dropdown-content">Some additional details about this item.</div>
+        </div>
+       -->
+    </div>
+    <div id="ranyDiv" onmouseup="showHide('ranyDiv')">
+<iframe src="rankTab.html" id="rany" frameborder="0"></iframe>
+  </div>
+  </center>
+  
+  
+  <div class="top-nav">
+    <button class="nav-button" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <div class="dropdown-menu" id="dropdownMenu">
+        <button onclick="showHide('lis');showHide('dropdownMenu')">Show History</button>
+        <button onclick="showHide('ranyDiv');showHide('dropdownMenu')">Show Rank</button>
+         <button onclick="location.href='/leaderbora.html';">Leaderboard</button>
+    </div>
+</div>
+
+
+  
+  
+  <script src="main.js"></script>
+</body>
+</html>
